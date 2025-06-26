@@ -1,7 +1,7 @@
-import { ReactNode } from "react";
+import { Outlet } from "react-router-dom";
 import Sidebar from "@/components/layout/Sidebar";
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
+export default function AdminLayout() {
   return (
     <div className="flex h-screen w-screen">
       {/* 侧边栏 */}
@@ -18,7 +18,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </header>
         {/* 主内容区 */}
         <main className="flex-1 bg-gray-50 p-6 overflow-auto">
-          {children}
+          <Outlet />
         </main>
       </div>
     </div>

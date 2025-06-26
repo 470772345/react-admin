@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import AdminLayout from "@/components/layout/AdminLayout";
 import Dashboard from "@/pages/Dashboard";
-import Users from "@/pages/Users";
+import Users from "../pages/Users";
 import Posters from "@/pages/Posters";
 import NotFound from "@/pages/NotFound";
 import Login from "@/pages/Login";
@@ -10,8 +10,9 @@ const router = createBrowserRouter([
   { path: "/login", element: <Login /> },
   {
     path: "/",
-    element: <AdminLayout><Dashboard /></AdminLayout>,
+    element: <AdminLayout />,
     children: [
+      { index: true, element: <Dashboard /> }, // 默认首页
       { path: "users", element: <Users /> },
       { path: "posters", element: <Posters /> },
       // ...更多子路由
