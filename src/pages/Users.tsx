@@ -1,7 +1,48 @@
 import { useState, useMemo, useCallback, memo } from "react";
+import React from "react";
+
+// ErrorBoundary 组件，支持重试时移除出错用户的"报错状态"
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode; onRemove?: () => void; user?: string },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode; onRemove?: () => void; user?: string }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error: unknown, errorInfo: unknown) {
+    console.error("Error caught:", error, errorInfo);
+  }
+  handleRetry = () => {
+    this.setState({ hasError: false });
+    if (this.props.onRemove) {
+      this.props.onRemove();
+    }
+  };
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-2 bg-red-100 text-red-700 rounded">
+          该用户渲染出错。
+          <button className="ml-2 px-2 py-1 bg-blue-500 text-white rounded" onClick={this.handleRetry}>
+            重试（恢复该用户）
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // 子组件用 React.memo 包裹，只有 props 变化才会重新渲染
-const UserItem = memo(function UserItem({ user, onClick }: { user: string; onClick: (user: string) => void }) {
+const UserItem = memo(function UserItem({ user, onClick, broken }: { user: string; onClick: (user: string) => void; broken?: boolean }) {
+  // 只有 broken 为 true 时才抛出错误
+  if (broken) {
+    throw new Error("模拟渲染出错！");
+  }
   console.log("UserItem render:", user);
   return (
     <li className="p-4 bg-gray-100 rounded cursor-pointer" onClick={() => onClick(user)}>
@@ -10,12 +51,14 @@ const UserItem = memo(function UserItem({ user, onClick }: { user: string; onCli
   );
 });
 
-export default function Users() {
+function UsersInner() {
   const [users, setUsers] = useState(["User 1", "User 2", "User 3"]);
   const [filter, setFilter] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
   const [newUser, setNewUser] = useState("");
   const [error, setError] = useState("");
+  // 控制哪些用户需要模拟报错
+  const [brokenUsers, setBrokenUsers] = useState(["User 2"]);
 
   // useMemo 用于缓存过滤后的用户列表，只有 users 或 filter 变化时才重新计算
   const filteredUsers = useMemo(() => {
@@ -39,6 +82,11 @@ export default function Users() {
     setNewUser("");
     setError("");
   }, [newUser, users]);
+
+  // 测试 ErrorBoundary：当用户数量大于5时抛出错误
+  // if (users.length > 5) {
+  //   throw new Error("用户数量太多，模拟渲染错误！");
+  // }
 
   return (
     <div className="p-8 rounded-lg bg-red-200">
@@ -68,7 +116,13 @@ export default function Users() {
       {error && <div className="mb-2 text-red-600">{error}</div>}
       <ul className="space-y-2">
         {filteredUsers.map((user) => (
-          <UserItem key={user} user={user} onClick={handleUserClick} />
+          <ErrorBoundary
+            key={user}
+            user={user}
+            onRemove={() => setBrokenUsers((prev) => prev.filter((u) => u !== user))}
+          >
+            <UserItem user={user} onClick={handleUserClick} broken={brokenUsers.includes(user)} />
+          </ErrorBoundary>
         ))}
       </ul>
       {selected && (
@@ -77,5 +131,13 @@ export default function Users() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function Users() {
+  return (
+    <ErrorBoundary>
+      <UsersInner />
+    </ErrorBoundary>
   );
 } 
