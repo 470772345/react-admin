@@ -7,17 +7,29 @@ import {
   SidebarMenuSubButton,
 } from "../../components/ui/sidebar";
 import { CollapsibleTrigger, CollapsibleContent, Collapsible} from "@/components/ui/collapsible";
-import { ChevronRight } from "lucide-react";
+import {
+  ChevronRight,
+  AudioWaveform,
+  BookOpen,
+  Bot,
+  Command,
+  Frame,
+  GalleryVerticalEnd,
+  Map,
+  PieChart,
+  Settings2,
+  SquareTerminal,
+} from "lucide-react"
 
 const menu = [
   {
     title: "Dashboard",
     url: "/",
-    icon: null, // 可替换为实际 icon
+    icon: PieChart, // 可替换为实际 icon
   },
   {
     title: "Users",
-    icon: null, // 可替换为实际 icon
+    icon: Bot, // 可替换为实际 icon
     items: [
       { title: "User List", url: "/users" },
       { title: "User Roles", url: "/users/roles" },
@@ -25,7 +37,7 @@ const menu = [
   },
   {
     title: "Posters",
-    icon: null, // 可替换为实际 icon
+    icon: GalleryVerticalEnd, // 可替换为实际 icon
     items: [
       { title: "Poster List", url: "/posters" },
       { title: "Categories", url: "/posters/categories" },
@@ -33,7 +45,7 @@ const menu = [
   },
   {
     title: "DynamicForm",
-    icon: null, // 可替换为实际 icon
+    icon: AudioWaveform, // 可替换为实际 icon
     items: [
       { title: "DynamicForm", url: "/dynamicForm" },
     ],
