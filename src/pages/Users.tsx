@@ -101,6 +101,17 @@ function UsersInner() {
   return (
     <div className="p-8 rounded-lg bg-red-200">
       <h1 className="text-2xl font-bold mb-4">User Management</h1>
+      {/* 描述这个页面用到技术点 */}
+      <p className="mb-4 text-gray-700 text-sm">
+        本页面演示了 React 组合式开发的多种技术点：<br />
+        1. <strong>useState</strong> 管理本地状态（用户列表、输入、选中项、错误等）<br />
+        2. <strong>useMemo</strong> 优化过滤用户的性能<br />
+        3. <strong>useCallback</strong> 优化事件处理函数，减少不必要的渲染<br />
+        4. <strong>React.memo</strong> 优化子组件渲染<br />
+        5. <strong>类组件 ErrorBoundary</strong> 实现页面级错误边界<br />
+        6. <strong>react-error-boundary</strong> 实现局部错误边界和友好重试<br />
+        7. <strong>Tailwind CSS</strong> 实现美观的页面布局和样式<br />
+      </p>
       <div className="flex mb-4 gap-2">
         <input
           className="px-3 py-2 border rounded w-full bg-white"
