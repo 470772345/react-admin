@@ -5,6 +5,7 @@ import Users from "../pages/Users";
 import Posters from "@/pages/Posters";
 import NotFound from "@/pages/NotFound";
 import Login from "@/pages/Login";
+import DynamicForm from "@/pages/forms/DynamicForm";
 
 const router = createBrowserRouter([
   { path: "/login", element: <Login /> },
@@ -15,6 +16,7 @@ const router = createBrowserRouter([
       { index: true, element: <Dashboard /> }, // 默认首页
       { path: "users", element: <Users /> },
       { path: "posters", element: <Posters /> },
+      { path: "dynamicForm", element: <DynamicForm /> },
       // ...更多子路由
     ],
   },

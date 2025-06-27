@@ -31,6 +31,13 @@ const menu = [
       { title: "Categories", url: "/posters/categories" },
     ],
   },
+  {
+    title: "DynamicForm",
+    icon: null, // 可替换为实际 icon
+    items: [
+      { title: "DynamicForm", url: "/dynamicForm" },
+    ],
+  },
 ];
 
 export default function Sidebar() {
