@@ -1,8 +1,10 @@
 import { Outlet } from "react-router-dom";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import Sidebar from "@/components/layout/Sidebar";
 
 export default function AdminLayout() {
   return (
+    <SidebarProvider>
     <div className="flex h-screen w-screen">
       {/* 侧边栏 */}
       <Sidebar />
@@ -22,5 +24,6 @@ export default function AdminLayout() {
         </main>
       </div>
     </div>
+    </SidebarProvider>
   );
 } 

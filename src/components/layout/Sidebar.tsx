@@ -1,102 +1,83 @@
-import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
-// 如无 cn 工具可用 clsx 代替
+import {
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
+} from "../../components/ui/sidebar";
+import { CollapsibleTrigger, CollapsibleContent, Collapsible} from "@/components/ui/collapsible";
+import { ChevronRight } from "lucide-react";
 
 const menu = [
   {
-    label: "Dashboard",
-    path: "/",
-    icon: "🏠",
+    title: "Dashboard",
+    url: "/",
+    icon: null, // 可替换为实际 icon
   },
   {
-    label: "Users",
-    icon: "👤",
-    children: [
-      { label: "User List", path: "/users" },
-      { label: "User Roles", path: "/users/roles" },
+    title: "Users",
+    icon: null, // 可替换为实际 icon
+    items: [
+      { title: "User List", url: "/users" },
+      { title: "User Roles", url: "/users/roles" },
     ],
   },
   {
-    label: "Posters",
-    icon: "🖼️",
-    children: [
-      { label: "Poster List", path: "/posters" },
-      { label: "Categories", path: "/posters/categories" },
+    title: "Posters",
+    icon: null, // 可替换为实际 icon
+    items: [
+      { title: "Poster List", url: "/posters" },
+      { title: "Categories", url: "/posters/categories" },
     ],
   },
 ];
 
 export default function Sidebar() {
-  const [openMenus, setOpenMenus] = useState<string[]>([]);
-  const location = useLocation();
-
-  const toggleMenu = (label: string) => {
-    setOpenMenus((prev) =>
-      prev.includes(label)
-        ? prev.filter((l) => l !== label)
-        : [...prev, label]
-    );
-  };
-
-  const isMenuOpen = (label: string) => openMenus.includes(label);
-
   return (
     <aside className="w-64 bg-gray-900 text-white flex flex-col">
       <div className="h-16 flex items-center justify-center font-bold text-xl border-b border-gray-800">
         LOGO
       </div>
-      <nav className="flex-1 p-4 space-y-2">
+      <SidebarMenu className="flex-1 p-4 space-y-2">
         {menu.map((item) =>
-          item.children ? (
-            <div key={item.label}>
-              <button
-                className={`flex items-center w-full px-4 py-2 rounded hover:bg-gray-800 transition justify-between ${
-                  isMenuOpen(item.label) ? "bg-gray-800" : ""
-                }`}
-                onClick={() => toggleMenu(item.label)}
-              >
-                <span className="flex items-center">
-                  <span className="mr-2">{item.icon}</span>
-                  {item.label}
-                </span>
-                <span>{isMenuOpen(item.label) ? "▼" : "▶"}</span>
-              </button>
-              {isMenuOpen(item.label) && (
-                <div className="ml-6 mt-1 space-y-1">
-                  {item.children.map((child) => (
-                    <NavLink
-                      key={child.path}
-                      to={child.path}
-                      className={({ isActive }) =>
-                        `block px-4 py-2 rounded hover:bg-gray-700 transition ${
-                          isActive || location.pathname === child.path
-                            ? "bg-gray-700 font-bold"
-                            : ""
-                        }`
-                      }
-                    >
-                      {child.label}
-                    </NavLink>
-                  ))}
-                </div>
-              )}
-            </div>
+          item.items ? (
+            <Collapsible key={item.title}>
+                <SidebarMenuItem >
+                <CollapsibleTrigger asChild>
+                    <SidebarMenuButton tooltip={item.title}>
+                    {item.icon && <item.icon />}
+                    <span>{item.title}</span>
+                    <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                    <SidebarMenuSub>
+                    {item.items.map((subItem) => (
+                        <SidebarMenuSubItem key={subItem.title}>
+                        <SidebarMenuSubButton asChild>
+                            <a href={subItem.url} className="block px-4 py-2 hover:bg-gray-700 rounded">
+                            <span>{subItem.title}</span>
+                            </a>
+                        </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                    ))}
+                    </SidebarMenuSub>
+                </CollapsibleContent>
+                </SidebarMenuItem>
+            </Collapsible>
           ) : (
-            <NavLink
-              key={item.path}
-              to={item.path!}
-              className={({ isActive }) =>
-                `flex items-center px-4 py-2 rounded hover:bg-gray-800 transition ${
-                  isActive ? "bg-gray-800 font-bold" : ""
-                }`
-              }
-            >
-              <span className="mr-2">{item.icon}</span>
-              {item.label}
-            </NavLink>
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton asChild tooltip={item.title}>
+                <a href={item.url} className="flex items-center w-full px-4 py-2 rounded hover:bg-gray-800 transition">
+                  {item.icon && <item.icon />}
+                  <span>{item.title}</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           )
         )}
-      </nav>
+      </SidebarMenu>
     </aside>
   );
 } 
