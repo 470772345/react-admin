@@ -1,6 +1,8 @@
-import { useState, useMemo, useCallback, memo } from "react";
+import { useState, useMemo, useCallback, memo, useRef } from "react";
 import React from "react";
 import { ErrorBoundary as ReactErrorBoundary } from "react-error-boundary";
+import FancyInput from '../components/FancyInput';
+import type { FancyInputHandle } from '../components/FancyInput';
 
 // 页面级 ErrorBoundary 组件（class 实现，保留）
 class ErrorBoundary extends React.Component<
@@ -70,6 +72,9 @@ function UsersInner() {
   // 控制哪些用户需要模拟报错
   const [brokenUsers, setBrokenUsers] = useState(["User 2"]);
 
+  // 集成 useRef + forwardRef + useImperativeHandle
+  const fancyInputRef = useRef<FancyInputHandle>(null);
+
   // useMemo 用于缓存过滤后的用户列表，只有 users 或 filter 变化时才重新计算
   const filteredUsers = useMemo(() => {
     return users.filter((u) => u.toLowerCase().includes(filter.toLowerCase()));
@@ -101,6 +106,20 @@ function UsersInner() {
   return (
     <div className="p-8 rounded-lg bg-red-200">
       <h1 className="text-2xl font-bold mb-4">User Management</h1>
+      {/* Ref 实战演示 */}
+      <div className="mb-4 flex gap-2 items-center">
+        <FancyInput
+          ref={fancyInputRef}
+          placeholder="Ref 实战输入框（点击按钮聚焦）"
+          className="w-2/3 rounded bg-white"
+        />
+        <button
+          className="px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+          onClick={() => fancyInputRef.current?.focusInput()}
+        >
+          聚焦输入框
+        </button>
+      </div>
       {/* 描述这个页面用到技术点 */}
       <p className="mb-4 text-gray-700 text-sm">
         本页面演示了 React 组合式开发的多种技术点：<br />
@@ -111,6 +130,7 @@ function UsersInner() {
         5. <strong>类组件 ErrorBoundary</strong> 实现页面级错误边界<br />
         6. <strong>react-error-boundary</strong> 实现局部错误边界和友好重试<br />
         7. <strong>Tailwind CSS</strong> 实现美观的页面布局和样式<br />
+        8. FancyInput 组件用 forwardRef 和 useImperativeHandle 实现了 ref 能力
       </p>
       <div className="flex mb-4 gap-2">
         <input
