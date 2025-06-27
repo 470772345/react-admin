@@ -1,6 +1,10 @@
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Switch } from '../../components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // 定义表单校验 schema
 const schema = Yup.object().shape({
@@ -8,13 +12,22 @@ const schema = Yup.object().shape({
     Yup.object().shape({
       name: Yup.string().required('Name is required'),
       email: Yup.string().email('Invalid email').required('Email is required'),
+      gender: Yup.boolean().required(),
+      ageGroup: Yup.string().required('Please select age group'),
     })
   ),
 });
 
 type FormValues = {
-  users: { name: string; email: string }[];
+  users: { name: string; email: string; gender: boolean; ageGroup: string }[];
 };
+
+const ageOptions = [
+  { value: '18-25', label: '18-25岁' },
+  { value: '26-35', label: '26-35岁' },
+  { value: '36-45', label: '36-45岁' },
+  { value: '46+', label: '46岁及以上' },
+];
 
 export default function DynamicForm() {
   const {
@@ -23,8 +36,8 @@ export default function DynamicForm() {
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>({
-    defaultValues: { users: [{ name: '', email: '' }] },
-    resolver: yupResolver(schema),
+    defaultValues: { users: [{ name: '', email: '', gender: false, ageGroup: '' }] },
+    resolver: yupResolver(schema) as any,
   });
   const { fields, append, remove } = useFieldArray({ control, name: 'users' });
 
@@ -39,8 +52,8 @@ export default function DynamicForm() {
       {fields.map((item, index) => (
         <div key={item.id} className="mb-4 p-4 border rounded bg-gray-50 relative">
           <div className="mb-2">
-            <input
-              className="px-3 py-2 border rounded w-full bg-white"
+            <Input
+              className="bg-white"
               placeholder="Name"
               {...register(`users.${index}.name` as const)}
             />
@@ -49,8 +62,8 @@ export default function DynamicForm() {
             )}
           </div>
           <div className="mb-2">
-            <input
-              className="px-3 py-2 border rounded w-full bg-white"
+            <Input
+              className="bg-white"
               placeholder="Email"
               {...register(`users.${index}.email` as const)}
             />
@@ -58,29 +71,67 @@ export default function DynamicForm() {
               <p className="text-red-500 text-xs mt-1">{errors.users[index]?.email?.message}</p>
             )}
           </div>
-          <button
+          <div className="mb-2 flex items-center gap-2">
+            <label className="text-sm text-gray-700">性别（男/女）</label>
+            <Controller
+              control={control}
+              name={`users.${index}.gender` as const}
+              render={({ field }) => (
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              )}
+            />
+            <span className="text-xs text-gray-500">{fields[index].gender ? '男' : '女'}</span>
+          </div>
+          <div className="mb-2">
+            <Controller
+              control={control}
+              name={`users.${index}.ageGroup` as const}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full bg-white">
+                    <SelectValue placeholder="请选择年龄段" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ageOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.users?.[index]?.ageGroup && (
+              <p className="text-red-500 text-xs mt-1">{errors.users[index]?.ageGroup?.message}</p>
+            )}
+          </div>
+          <Button
             type="button"
-            className="absolute top-2 right-2 px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+            variant="destructive"
+            className="absolute top-2 right-2 px-2 py-1"
             onClick={() => remove(index)}
             disabled={fields.length === 1}
           >
             删除
-          </button>
+          </Button>
         </div>
       ))}
-      <button
+      <Button
         type="button"
-        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        onClick={() => append({ name: '', email: '' })}
+        variant="secondary"
+        className="mb-4 mr-4"
+        onClick={() => append({ name: '', email: '', gender: false, ageGroup: '' })}
       >
         添加用户
-      </button>
-      <button
+      </Button>
+      <Button
         type="submit"
-        className="ml-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+        variant="default"
+        className="ml-0"
       >
         提交
-      </button>
+      </Button>
     </form>
   );
 } 
