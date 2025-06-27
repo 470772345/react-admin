@@ -7,6 +7,11 @@ module.exports = {
     ],
     theme: {
     	extend: {
+        // customize spacing system,use as: p-128 => padding: 32rem
+        spacing: {
+          // '128': '32rem',
+          // '144': '36rem',
+        },
     		borderRadius: {
     			lg: 'var(--radius)',
     			md: 'calc(var(--radius) - 2px)',
