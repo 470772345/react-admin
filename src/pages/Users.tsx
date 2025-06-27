@@ -1,12 +1,13 @@
 import { useState, useMemo, useCallback, memo } from "react";
 import React from "react";
+import { ErrorBoundary as ReactErrorBoundary } from "react-error-boundary";
 
-// ErrorBoundary 组件，支持重试时移除出错用户的"报错状态"
+// 页面级 ErrorBoundary 组件（class 实现，保留）
 class ErrorBoundary extends React.Component<
-  { children: React.ReactNode; onRemove?: () => void; user?: string },
+  { children: React.ReactNode },
   { hasError: boolean }
 > {
-  constructor(props: { children: React.ReactNode; onRemove?: () => void; user?: string }) {
+  constructor(props: { children: React.ReactNode }) {
     super(props);
     this.state = { hasError: false };
   }
@@ -18,17 +19,14 @@ class ErrorBoundary extends React.Component<
   }
   handleRetry = () => {
     this.setState({ hasError: false });
-    if (this.props.onRemove) {
-      this.props.onRemove();
-    }
   };
   render() {
     if (this.state.hasError) {
       return (
-        <div className="p-2 bg-red-100 text-red-700 rounded">
-          该用户渲染出错。
+        <div className="p-8 bg-red-100 text-red-700 rounded">
+          页面发生错误，请稍后重试。
           <button className="ml-2 px-2 py-1 bg-blue-500 text-white rounded" onClick={this.handleRetry}>
-            重试（恢复该用户）
+            重试
           </button>
         </div>
       );
@@ -50,6 +48,18 @@ const UserItem = memo(function UserItem({ user, onClick, broken }: { user: strin
     </li>
   );
 });
+
+// react-error-boundary 的 fallback 组件
+function UserItemFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
+  return (
+    <div className="p-2 bg-red-100 text-red-700 rounded">
+      该用户渲染出错：{error.message}
+      <button className="ml-2 px-2 py-1 bg-blue-500 text-white rounded" onClick={resetErrorBoundary}>
+        重试（恢复该用户）
+      </button>
+    </div>
+  );
+}
 
 function UsersInner() {
   const [users, setUsers] = useState(["User 1", "User 2", "User 3"]);
@@ -116,13 +126,14 @@ function UsersInner() {
       {error && <div className="mb-2 text-red-600">{error}</div>}
       <ul className="space-y-2">
         {filteredUsers.map((user) => (
-          <ErrorBoundary
+          <ReactErrorBoundary
             key={user}
-            user={user}
-            onRemove={() => setBrokenUsers((prev) => prev.filter((u) => u !== user))}
+            FallbackComponent={UserItemFallback}
+            onReset={() => setBrokenUsers((prev) => prev.filter((u) => u !== user))}
+            resetKeys={[brokenUsers]}
           >
             <UserItem user={user} onClick={handleUserClick} broken={brokenUsers.includes(user)} />
-          </ErrorBoundary>
+          </ReactErrorBoundary>
         ))}
       </ul>
       {selected && (
