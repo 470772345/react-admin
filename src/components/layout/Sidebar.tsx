@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -75,9 +76,9 @@ export default function Sidebar() {
                     {item.items.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
                         <SidebarMenuSubButton asChild>
-                            <a href={subItem.url} className="block px-4 py-2 hover:bg-gray-700 rounded">
-                            <span>{subItem.title}</span>
-                            </a>
+                            <Link to={subItem.url} className="block px-4 py-2 hover:bg-gray-700 rounded">
+                              <span>{subItem.title}</span>
+                            </Link>
                         </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
                     ))}
@@ -88,10 +89,10 @@ export default function Sidebar() {
           ) : (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild tooltip={item.title}>
-                <a href={item.url} className="flex items-center w-full px-4 py-2 rounded hover:bg-gray-800 transition">
+                <Link to={item.url} className="flex items-center w-full px-4 py-2 rounded hover:bg-gray-800 transition">
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           )
