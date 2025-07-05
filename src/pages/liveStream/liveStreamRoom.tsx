@@ -10,7 +10,6 @@ export default function LiveStreamRoom() {
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
   const wsRef = useRef<WebSocket | null>(null)
   const pcRef = useRef<RTCPeerConnection | null>(null)
-  const [logStr, setLogStr] = useState<string[]>([])
 
   // 发送弹幕
   const sendMessage = (msg: string) => {
@@ -62,8 +61,12 @@ export default function LiveStreamRoom() {
         stream.getTracks().forEach((track) => pc.addTrack(track, stream))
         // 创建 offer
         const offer = await pc.createOffer()
+        console.log("offer", offer)
         await pc.setLocalDescription(offer)
         ws.send(JSON.stringify(offer))
+      } else if (role === "audience") {
+        // 观众主动请求 offer
+        ws.send(JSON.stringify({ type: "need-offer" }))
       }
     }
 
@@ -88,6 +91,11 @@ export default function LiveStreamRoom() {
         } catch (e) {}
       } else if (data.type === "chat") {
         setMessages((msgs) => [...msgs, data.content])
+      } else if (data.type === "need-offer" && role === "host") {
+        // 主播收到观众请求，重新 createOffer
+        const offer = await pc.createOffer()
+        await pc.setLocalDescription(offer)
+        ws.send(JSON.stringify(offer))
       }
     }
   }
