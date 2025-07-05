@@ -51,6 +51,13 @@ const menu = [
       { title: "DynamicForm", url: "/dynamicForm" },
     ],
   },
+  {
+    title: "LiveStream",
+    icon: Frame,
+    items: [
+      { title: "LiveStream", url: "/LiveStream" },
+    ],
+  },
 ];
 
 export default function Sidebar() {

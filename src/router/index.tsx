@@ -6,6 +6,7 @@ import Posters from "@/pages/Posters";
 import NotFound from "@/pages/NotFound";
 import Login from "@/pages/Login";
 import DynamicForm from "@/pages/forms/DynamicForm";
+import LiveStream from "@/pages/liveStream/index";
 
 const router = createBrowserRouter([
   { path: "/login", element: <Login /> },
@@ -17,6 +18,7 @@ const router = createBrowserRouter([
       { path: "users", element: <Users /> },
       { path: "posters", element: <Posters /> },
       { path: "dynamicForm", element: <DynamicForm /> },
+      { path: "LiveStream", element: <LiveStream /> },
       // ...更多子路由
     ],
   },
