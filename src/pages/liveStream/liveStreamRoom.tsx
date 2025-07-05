@@ -1,4 +1,4 @@
-import { use, useRef, useState } from "react"
+import { useRef, useState } from "react"
 
 const SIGNAL_URL = "ws://192.168.0.2:3000"
 
@@ -27,16 +27,12 @@ export default function LiveStreamRoom() {
     const pc = new RTCPeerConnection({
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
-        // {
-        //   urls: "stun:global.stun.twilio.com:3478?transport=udp",
-        // },
       ],
     })
     pcRef.current = pc
 
     // 观众端：收到远端流
     pc.ontrack = (e) => {
-      console.log("ontrack", e)
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = e.streams[0]
       }
@@ -61,7 +57,6 @@ export default function LiveStreamRoom() {
         stream.getTracks().forEach((track) => pc.addTrack(track, stream))
         // 创建 offer
         const offer = await pc.createOffer()
-        console.log("offer", offer)
         await pc.setLocalDescription(offer)
         ws.send(JSON.stringify(offer))
       } else if (role === "audience") {
@@ -100,74 +95,112 @@ export default function LiveStreamRoom() {
     }
   }
 
+  // UI
   return (
-    <div className="max-w-2xl mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-4">WebRTC 直播间 Demo</h1>
-      <div className="mb-4">
-        <label className="mr-4">
-          <input
-            type="radio"
-            checked={role === "host"}
-            onChange={() => setRole("host")}
-          />{" "}
-          主播
-        </label>
-        <label>
-          <input
-            type="radio"
-            checked={role === "audience"}
-            onChange={() => setRole("audience")}
-          />{" "}
-          观众
-        </label>
-        <button
-          className="ml-6 px-4 py-2 bg-blue-600 text-white rounded"
-          onClick={start}
-          disabled={connected}
-        >
-          {connected ? "已连接" : "连接直播间"}
-        </button>
-      </div>
-      <div className="flex gap-4 mb-4">
-        <div>
-          <h2 className="font-semibold mb-2">本地视频</h2>
-          <video
-            ref={localVideoRef}
-            autoPlay
-            muted
-            className="w-64 h-40 bg-black rounded"
-          />
-        </div>
-        <div>
-          <h2 className="font-semibold mb-2">远端视频</h2>
-          <video
-            ref={remoteVideoRef}
-            autoPlay
-            className="w-64 h-40 bg-black rounded"
-          />
-        </div>
-      </div>
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="发送弹幕"
-          className="px-3 py-2 border rounded mr-2"
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && e.currentTarget.value) {
-              sendMessage(e.currentTarget.value)
-              e.currentTarget.value = ""
-            }
-          }}
-        />
-      </div>
-      <div className="bg-gray-100 rounded p-2 h-32 overflow-y-auto">
-        <div className="text-xs text-gray-700 mb-1">弹幕/消息：</div>
-        {messages.map((msg, i) => (
-          <div key={i} className="text-sm text-blue-700">
-            {msg}
+    <div className="flex flex-col h-screen bg-gradient-to-br from-blue-100 to-indigo-200">
+      {/* 顶部栏 */}
+      <header className="flex items-center justify-between px-6 py-3 bg-white/80 shadow">
+        {/* 主播信息 */}
+        <div className="flex items-center gap-3">
+          <img src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" className="w-10 h-10 rounded-full border" alt="主播头像" />
+          <div>
+            <div className="font-bold">主播昵称</div>
+            <div className="text-xs text-gray-500">房间标题/简介</div>
           </div>
-        ))}
+          <button className="ml-4 px-3 py-1 bg-pink-500 text-white rounded-full text-sm">关注</button>
+        </div>
+        {/* 房间信息 */}
+        <div className="flex items-center gap-6 text-gray-600 text-sm">
+          <span>房间号: 123456</span>
+          <span>观众: 39</span>
+          <span>点赞: 400</span>
+        </div>
+        {/* 角色切换与连接 */}
+        <div className="flex items-center gap-2">
+          <label className="mr-2">
+            <input type="radio" checked={role === "host"} onChange={() => setRole("host")}/> 主播
+          </label>
+          <label>
+            <input type="radio" checked={role === "audience"} onChange={() => setRole("audience")}/> 观众
+          </label>
+          <button className="ml-4 px-4 py-2 bg-blue-600 text-white rounded" onClick={start} disabled={connected}>
+            {connected ? "已连接" : "连接直播间"}
+          </button>
+        </div>
+      </header>
+
+      {/* 主体内容区 */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* 视频区 */}
+        <div className="flex-1 flex items-center justify-center bg-black relative">
+          {/* 占位：弹幕动画区 */}
+          <div className="absolute top-0 left-0 w-full h-12 pointer-events-none z-10 flex items-center px-4">
+            {/* 这里可后续实现弹幕动画 */}
+            <span className="text-white/70 text-sm italic">弹幕动画区（占位）</span>
+          </div>
+          {/* 视频 */}
+          <div className="w-[420px] h-[700px] bg-black rounded-xl shadow-lg flex items-center justify-center relative">
+            {role === "host" ? (
+              <video ref={localVideoRef} autoPlay muted className="w-full h-full object-contain rounded-xl bg-black" />
+            ) : (
+              <video ref={remoteVideoRef} autoPlay className="w-full h-full object-contain rounded-xl bg-black" />
+            )}
+          </div>
+        </div>
+        {/* 右侧弹幕/观众区 */}
+        <aside className="w-80 bg-white/90 flex flex-col border-l h-full">
+          <div className="flex items-center justify-between px-4 py-2 border-b">
+            <span className="font-semibold">房间观众</span>
+            <span className="text-xs text-gray-400">39人</span>
+          </div>
+          {/* 观众列表占位 */}
+          <div className="flex flex-wrap gap-2 px-4 py-2 border-b">
+            {[1,2,3,4,5].map(i => (
+              <img key={i} src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${i}`} className="w-8 h-8 rounded-full border" alt="观众" />
+            ))}
+            <span className="text-xs text-gray-400 ml-2">观众列表（占位）</span>
+          </div>
+          {/* 弹幕/评论区 */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            {messages.map((msg, i) => (
+              <div key={i} className="text-sm text-blue-700 bg-blue-50 rounded px-2 py-1 w-fit max-w-full break-words shadow">
+                {msg}
+              </div>
+            ))}
+          </div>
+        </aside>
       </div>
+
+      {/* 底部礼物/互动栏 */}
+      <footer className="flex items-center justify-between px-6 py-3 bg-white/80 border-t">
+        {/* 礼物栏占位 */}
+        <div className="flex gap-2 items-center">
+          <button className="bg-pink-100 px-3 py-1 rounded-full text-pink-600">送礼物</button>
+          <button className="bg-yellow-100 px-3 py-1 rounded-full text-yellow-600">点赞</button>
+          <span className="text-xs text-gray-400 ml-2">礼物栏（占位）</span>
+        </div>
+        {/* 弹幕输入框 */}
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            placeholder="发送弹幕"
+            className="px-3 py-2 rounded-full border w-64"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && e.currentTarget.value) {
+                sendMessage(e.currentTarget.value)
+                e.currentTarget.value = ""
+              }
+            }}
+          />
+          <button className="bg-blue-500 text-white px-4 py-2 rounded-full" onClick={() => {
+            const input = document.querySelector<HTMLInputElement>("#barrageInput");
+            if (input && input.value) {
+              sendMessage(input.value);
+              input.value = "";
+            }
+          }}>发送</button>
+        </div>
+      </footer>
     </div>
   )
 }
