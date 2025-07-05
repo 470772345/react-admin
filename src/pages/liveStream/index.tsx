@@ -8,7 +8,7 @@ import dashjs from 'dashjs';
 const streams = {
   hls: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
   flv: 'http://ossrs.net:8080/live/livestream.flv',
-  dash: 'https://storage.googleapis.com/shaka-demo-assets/angel-one/dash.mpd',
+  dash: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd',
   webrtc: null, // WebRTC需要特殊处理
 };
 

@@ -56,6 +56,7 @@ const menu = [
     icon: Frame,
     items: [
       { title: "LiveStream", url: "/LiveStream" },
+      { title: "LiveStreamRoom", url: "/liveStreamRoom" },
     ],
   },
 ];
