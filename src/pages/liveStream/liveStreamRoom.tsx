@@ -97,7 +97,7 @@ export default function LiveStreamRoom() {
 
   // UI
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-blue-100 to-indigo-200">
+    <div className="flex flex-col bg-gradient-to-br from-blue-100 to-indigo-200" style={{ height: '80vh' }}>
       {/* 顶部栏 */}
       <header className="flex items-center justify-between px-6 py-3 bg-white/80 shadow">
         {/* 主播信息 */}
@@ -138,13 +138,28 @@ export default function LiveStreamRoom() {
             {/* 这里可后续实现弹幕动画 */}
             <span className="text-white/70 text-sm italic">弹幕动画区（占位）</span>
           </div>
-          {/* 视频 */}
+          {/* 视频或美化占位 */}
           <div className="w-[420px] h-[700px] bg-black rounded-xl shadow-lg flex items-center justify-center relative">
-            {role === "host" ? (
-              <video ref={localVideoRef} autoPlay muted className="w-full h-full object-contain rounded-xl bg-black" />
-            ) : (
-              <video ref={remoteVideoRef} autoPlay className="w-full h-full object-contain rounded-xl bg-black" />
-            )}
+            {role === "host"
+              ? connected
+                ? (<video ref={localVideoRef} autoPlay muted className="w-full h-full object-contain rounded-xl bg-black" />)
+                : (
+                  <div className="flex flex-col items-center justify-center w-full h-full text-white/80 bg-gradient-to-b from-indigo-800/80 to-black/90 rounded-xl">
+                    <img src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" className="w-20 h-20 mb-4 rounded-full border-2 border-white/40" alt="主播头像" />
+                    <div className="text-lg font-bold mb-2">请点击右上角“连接直播间”开始推流</div>
+                    <div className="text-sm text-gray-300">未连接</div>
+                  </div>
+                )
+              : connected
+                ? (<video ref={remoteVideoRef} autoPlay className="w-full h-full object-contain rounded-xl bg-black" />)
+                : (
+                  <div className="flex flex-col items-center justify-center w-full h-full text-white/80 bg-gradient-to-b from-indigo-800/80 to-black/90 rounded-xl">
+                    <img src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" className="w-20 h-20 mb-4 rounded-full border-2 border-white/40" alt="主播头像" />
+                    <div className="text-lg font-bold mb-2">等待主播开播...</div>
+                    <div className="text-sm text-gray-300">请耐心等待，主播还未上线</div>
+                  </div>
+                )
+            }
           </div>
         </div>
         {/* 右侧弹幕/观众区 */}
